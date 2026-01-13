@@ -8,9 +8,9 @@
     "Armaninyow"
   ],
   "contact": {
-    "homepage": "https://github.com/armaninyow//",
-    "sources": "https://github.com/armaninyow/.java",
-    "issues": "https://github.com/armaninyow//issues"
+    "homepage": "https://github.com/armaninyow/Numerical-HUD",
+    "sources": "https://github.com/armaninyow/Numerical-HUD/blob/main/src/main/java/com/armaninyow/numericalhud/NumericalHudClient.java",
+    "issues": "https://github.com/armaninyow/Numerical-HUD/issues"
   },
   "license": "MIT",
   "icon": "assets/numericalhud/icon.png",

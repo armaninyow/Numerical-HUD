@@ -1,103 +1,45 @@
-# Numerical HUD
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.youtube.com/watch?v=xvFZjo5PgG0)
 
-A Minecraft mod that replaces the vanilla health, hunger, armor, and XP bars with a clean, numerical display featuring smooth animations and visual feedback.
+# 📊 Numerical HUD
 
-## Features
+![Mod Icon](src/main/resources/assets/numericalhud/icon.png)
+
+## Functionality
+Numerical HUD overhauls your survival interface by condensing vital stats into a centralized, data-driven display located directly above the experience bar.
 
 ### Core Modules
-
-- **Health Display** - Shows current health with support for absorption hearts, status effects (poison, wither, frozen), and hardcore mode
-- **Armor Display** - Displays armor points with visual feedback when armor changes
-- **Hunger Display** - Shows food level with saturation overlay and hunger effect support
-- **XP Display** - Presents experience as level.percentage (e.g., "15.47") with animated progression
-- **Oxygen Display** - Appears when underwater or air depleting, with unique bubble pop/push animations
-- **Vehicle Health** - Shows mounted entity health when riding
-
-### Visual Animations
-
-**Smooth Value Transitions**
-- Health, armor, and hunger values animate smoothly over 10 ticks when changing
-- Values display with one decimal place during transitions (e.g., "19.3" → "20.0")
-- Separate animations for increasing (green) and decreasing (red) values
-
-**Special Effects**
-- **Panic Animation** - Health icon bounces when HP ≤ 4
-- **Starvation Animation** - Hunger icon bounces when food level = 0
-- **Blink Effect** - Icons flash briefly when taking damage or armor changes
-- **Oxygen Burst** - Unique bubble burst animation when losing air
-- **XP Glow** - Experience orb glows yellow during XP gain
-
-### Smart Behavior
-
-- All modules positioned relative to XP bar for perfect alignment
-- Oxygen module only appears when underwater or air depleting
-- Vehicle health shows only when mounted
-- Infinity symbol (∞) for water breathing effects
-- Red text for critical health/hunger states
-- Decimal animations prevent jarring number jumps
-
-## Installation
-
-1. Install [Fabric Loader](https://fabricmc.net/use/)
-2. Install [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api)
-3. Download the latest release from [Releases](../../releases)
-4. Place the `.jar` file in your `.minecraft/mods` folder
-
-## Technical Details
-
-### Module System
-
-Each HUD element is a self-contained module extending `BaseHudModule`:
-- Independent rendering and animation logic
-- Shared animation timing and color systems
-- Modular texture system for easy customization
+* **Advanced Health & Absorption:** Displays exact HP with color-coded states for Poison, Wither, Frozen, and Hardcore modes. Includes a "Panic" animation when health is low.
+* **Smart Armor Tracking:** Real-time numerical defense rating that "blinks" when your armor value changes.
+* **Detailed Hunger & Saturation:** Tracks food levels and saturation simultaneously, featuring a "starvation" shake animation when hunger hits zero.
+* **Precise Experience:** Shows your level and exact progress percentage (e.g., `Level 25.4`) with color transitions from yellow to green as you gain XP.
+* **Oxygen & Breath:** A specialized module that only appears underwater, featuring a unique "popping bubble" animation when air is consumed.
+* **Vehicle & Mount Stats:** Automatically displays the health and jump-strength of horses, llamas, and other rideable entities when mounted.
 
 ### Animation System
+Unlike static text mods, Numerical HUD features a custom **BaseHudModule** system:
+* **Linear Interpolation:** Values transition smoothly between numbers rather than jumping instantly.
+* **Visual Cues:** Numbers change color (Green for healing/gaining, Red for damage/losing) during transitions.
+* **Icon Blinking:** HUD icons flash during state changes to maintain the "Vanilla" reactive feel.
 
-- 10-tick linear interpolation for value changes
-- 5-tick cooldown between animations to prevent flickering
-- Smart decimal display (e.g., increasing: 7 → 7.9 → 8; decreasing: 8 → 7.1 → 7)
-- Color-coded feedback (red for damage, green for healing/gain)
+## Benefits
 
-### Vanilla Integration
+* **Data-Driven Gameplay:** Know exactly how many HP you have left or how much saturation a food item provided.
+* **Clean UI:** Removes the clutter of 40+ individual heart/hunger icons, freeing up screen real estate.
+* **Performance:** Built on highly optimized Mixins that stop vanilla bars from rendering entirely, reducing overhead.
+* **Context Aware:** Modules for Oxygen and Vehicles only appear when relevant, keeping your HUD minimal during normal play.
 
-Uses Mixin to:
-- Hide vanilla health/armor/hunger/mount hearts
-- Temporarily hide XP level number during vanilla rendering
-- Preserve vanilla XP bar and hotbar functionality
-
-## Configuration
-
-Currently, the mod works out of the box with no configuration needed. Future versions may include customization options for:
-- Module positions
-- Animation speeds
-- Color schemes
-- Toggle individual modules
-
-## Compatibility
-
-**Requires:**
-- Minecraft 1.21+
-- Fabric Loader
-- Fabric API
-
-**May conflict with:**
-- Other HUD mods that modify health/hunger/XP rendering
-- Mods that heavily customize the player HUD
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Credits
-
-- Textures based on vanilla Minecraft UI elements
-- Created using Fabric API and Mixin
+## Installation
+1.  **Requirements**: Ensure you have Minecraft 1.21.10, Fabric Loader 0.18.4, and the Fabric API installed.
+2.  **Download**: Get the latest `.jar` from [Modrinth](https://modrinth.com/mod/numerical-hud) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/numerical-hud).
+3.  **Setup**: Drop the file into your `%appdata%/.minecraft/mods` folder.
 
 ## Support
+If you encounter bugs or wish to contribute:
+* **Issue Tracker**: Report problems on our [GitHub Issues page](https://github.com/armaninyow/Numerical-HUD/issues).
+* **Contributions**: Submit improvements via [Pull Requests](https://github.com/armaninyow/Numerical-HUD/pulls).
 
-Found a bug or have a suggestion? Please [open an issue](../../issues)!
+## Credits
+* **Author**: Armaninyow
+* **License**: Released under [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 
----
-
-**Note:** This mod is a client-side visual enhancement and does not affect gameplay mechanics or server compatibility.
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.youtube.com/watch?v=xvFZjo5PgG0)

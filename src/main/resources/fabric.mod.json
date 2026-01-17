@@ -1,32 +1,32 @@
 {
-  "schemaVersion": 1,
-  "id": "numericalhud",
-  "version": "1.0.0",
-  "name": "Numerical HUD",
-  "description": "A modern HUD overhaul with numerical health, armor, hunger, and XP display",
-  "authors": [
-    "Armaninyow"
-  ],
-  "contact": {
-    "homepage": "https://github.com/armaninyow/Numerical-HUD",
-    "sources": "https://github.com/armaninyow/Numerical-HUD/blob/main/src/main/java/com/armaninyow/numericalhud/NumericalHudClient.java",
-    "issues": "https://github.com/armaninyow/Numerical-HUD/issues"
-  },
-  "license": "MIT",
-  "icon": "assets/numericalhud/icon.png",
-  "environment": "client",
-  "entrypoints": {
-    "client": [
-      "com.armaninyow.numericalhud.NumericalHudClient"
-    ]
-  },
-  "mixins": [
-    "numericalhud.mixins.json"
-  ],
-  "depends": {
-    "fabricloader": ">=0.16.0",
-    "minecraft": "~1.21.10",
-    "java": ">=21",
-    "fabric-api": "*"
-  }
+	"schemaVersion": 1,
+	"id": "numericalhud",
+	"version": "${version}",
+	"name": "Numerical HUD",
+	"description": "A modern HUD overhaul with numerical health, armor, hunger, and XP display",
+	"authors": [
+		"Armaninyow"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/numerical-hud",
+		"sources": "https://github.com/armaninyow/Numerical-HUD",
+		"issues": "https://github.com/armaninyow/Numerical-HUD/issues"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/numericalhud/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"com.armaninyow.numericalhud.NumericalHud"
+		]
+	},
+	"mixins": [
+		"numericalhud.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
 }

@@ -49,8 +49,8 @@ Unlike static text mods, Numerical HUD features a custom **BaseHudModule** syste
   <summary></summary>
    
 If you encounter bugs or wish to contribute:
-* [Report any problems you find.](https://github.com/armaninyow/Numerical-HUD/issues)
-* [Submit your improvements and code changes.](https://github.com/armaninyow/Numerical-HUD/pulls)
+* [Report any problems you find.](https://github.com/armaninyow/Numerical-HUD/discussions/categories/issues)
+* [Share your ideas for new features.](https://github.com/armaninyow/Numerical-HUD/discussions/categories/suggestions)
 </details>
 
 ## Credits

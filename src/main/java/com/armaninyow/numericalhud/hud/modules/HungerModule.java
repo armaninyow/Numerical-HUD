@@ -11,7 +11,7 @@ public class HungerModule extends BaseHudModule {
 	private static final int COLOR_RED = 0xFFFF0000;
 	private static final int COLOR_GREEN = 0xFF00FF00;
 	
-	private int starvationTimer = 0;
+	private float lastHunger = Float.MAX_VALUE;
 	
 	@Override
 	public void render(DrawContext context, PlayerEntity player, int x, int y, float tickDelta) {
@@ -22,23 +22,35 @@ public class HungerModule extends BaseHudModule {
 		// Update animation
 		updateAnimation(hunger, 0.1f);
 		
-		// Starvation animation when hunger is 0 (every 10 ticks)
-		int yOffset = 0;
-		int textColor;
+		// Trigger blink on hunger loss and start recurring blink
+		triggerDamageBlink(hunger, lastHunger);
+		lastHunger = hunger;
 		
+		// Update blink timer
+		updateBlinkTimer();
+		
+		// Update recurring blink timer (max hunger is 20)
+		updateRecurringBlink(hunger, 20);
+		
+		// Determine text color
+		int textColor;
 		if (hunger == 0) {
-			starvationTimer++;
-			yOffset = ((starvationTimer / 10) % 2 == 0) ? 1 : -1; // Every 10 ticks
 			textColor = COLOR_RED; // Always static red when hunger = 0
 		} else {
-			starvationTimer = 0;
 			textColor = getAnimationColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
 		}
 		
-		// Select textures
-		Identifier containerTexture = hasHungerEffect ?
-			getTexture("hunger/food_empty_hunger.png") :
-			getTexture("hunger/food_empty.png");
+		// Select textures based on blink state
+		Identifier containerTexture;
+		if (shouldShowBlink()) {
+			containerTexture = hasHungerEffect ?
+				getTexture("hunger/container_hunger_blinking.png") :
+				getTexture("hunger/container_blinking.png");
+		} else {
+			containerTexture = hasHungerEffect ?
+				getTexture("hunger/food_empty_hunger.png") :
+				getTexture("hunger/food_empty.png");
+		}
 		
 		Identifier foregroundTexture = hasHungerEffect ?
 			getTexture("hunger/food_full_hunger.png") :
@@ -47,15 +59,15 @@ public class HungerModule extends BaseHudModule {
 		Identifier saturationTexture = getTexture("hunger/food_saturation.png");
 		
 		// Render icon (moved 1px up)
-		drawIcon(context, containerTexture, x, y + yOffset - 1);
+		drawIcon(context, containerTexture, x, y - 1);
 		if (hunger > 0) {
-			drawIcon(context, foregroundTexture, x, y + yOffset - 1);
+			drawIcon(context, foregroundTexture, x, y - 1);
 		}
 		
 		// Render saturation overlay if present
 		if (saturation > 0) {
 			float saturationAlpha = Math.min(saturation / 20.0f, 1.0f);
-			drawIcon(context, saturationTexture, x, y + yOffset - 1, saturationAlpha);
+			drawIcon(context, saturationTexture, x, y - 1, saturationAlpha);
 		}
 		
 		// Render text (no offset)

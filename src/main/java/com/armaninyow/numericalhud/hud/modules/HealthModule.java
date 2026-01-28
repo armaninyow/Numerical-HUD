@@ -13,8 +13,7 @@ public class HealthModule extends BaseHudModule {
 	private static final int COLOR_GREEN = 0xFF00FF00;
 	private static final int PANIC_THRESHOLD = 4;
 	
-	private float lastHealth = 0f;
-	private int panicTimer = 0;
+	private float lastHealth = Float.MAX_VALUE;
 	
 	@Override
 	public void render(DrawContext context, PlayerEntity player, int x, int y, float tickDelta) {
@@ -35,23 +34,21 @@ public class HealthModule extends BaseHudModule {
 		float totalHealth = health + absorption;
 		updateAnimation(totalHealth, 0.1f);
 		
-		// Trigger blink on damage
-		if (totalHealth < lastHealth) {
-			shouldBlink = true;
-			blinkTimer = 0;
-		}
+		// Trigger blink on damage and start recurring blink
+		triggerDamageBlink(totalHealth, lastHealth);
 		lastHealth = totalHealth;
 		
-		// Panic animation when health is low (every 10 ticks)
-		int yOffset = 0;
-		int textColor;
+		// Update blink timer
+		updateBlinkTimer();
 		
+		// Update recurring blink timer
+		updateRecurringBlink(totalHealth, maxHealth);
+		
+		// Determine text color
+		int textColor;
 		if (health <= PANIC_THRESHOLD) {
-			panicTimer++;
-			yOffset = ((panicTimer / 10) % 2 == 0) ? 1 : -1; // Every 10 ticks
 			textColor = COLOR_RED; // Always static red when health <= 4
 		} else {
-			panicTimer = 0;
 			textColor = getAnimationColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
 		}
 		
@@ -62,14 +59,12 @@ public class HealthModule extends BaseHudModule {
 		);
 		
 		// Render icon (moved 1px up)
-		drawIcon(context, containerTexture, x, y + yOffset - 1);
-		drawIcon(context, foregroundTexture, x, y + yOffset - 1);
+		drawIcon(context, containerTexture, x, y - 1);
+		drawIcon(context, foregroundTexture, x, y - 1);
 		
 		// Render text (no offset)
 		String text = formatValue(currentDisplayValue, isAnimating);
 		drawText(context, text, x + ICON_SIZE + ICON_TEXT_GAP, y, textColor);
-		
-		updateBlinkTimer();
 	}
 	
 	private Identifier getContainerTexture(boolean hardcore, boolean blink) {

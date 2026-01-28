@@ -13,7 +13,7 @@ public class VehicleHealthModule extends BaseHudModule {
 	private static final int COLOR_RED = 0xFFFF0000;
 	private static final int COLOR_GREEN = 0xFF00FF00;
 	
-	private float lastVehicleHealth = 0f;
+	private float lastVehicleHealth = Float.MAX_VALUE;
 	
 	@Override
 	public void render(DrawContext context, PlayerEntity player, int x, int y, float tickDelta) {
@@ -29,18 +29,27 @@ public class VehicleHealthModule extends BaseHudModule {
 		// Update animation
 		updateAnimation(health, 0.1f);
 		
-		// Trigger blink on damage
-		if (health < lastVehicleHealth) {
-			shouldBlink = true;
-			blinkTimer = 0;
-		}
+		// Trigger blink on damage and start recurring blink
+		triggerDamageBlink(health, lastVehicleHealth);
 		lastVehicleHealth = health;
 		
-		// Select textures
-		Identifier containerTexture = getTexture("health/vehicle_container.png");
-		Identifier foregroundTexture = shouldShowBlink() ?
-			getTexture("health/vehicle_full.png") : // Could add blinking variant
-			getTexture("health/vehicle_full.png");
+		// Update blink timer
+		updateBlinkTimer();
+		
+		// Update recurring blink timer
+		updateRecurringBlink(health, maxHealth);
+		
+		// Select textures based on blink state
+		Identifier containerTexture;
+		Identifier foregroundTexture;
+		
+		if (shouldShowBlink()) {
+			containerTexture = getTexture("health/vehicle_container_blinking.png");
+			foregroundTexture = getTexture("health/vehicle_full_blinking.png");
+		} else {
+			containerTexture = getTexture("health/vehicle_container.png");
+			foregroundTexture = getTexture("health/vehicle_full.png");
+		}
 		
 		// Render icon
 		drawIcon(context, containerTexture, x, y - 1);
@@ -50,8 +59,6 @@ public class VehicleHealthModule extends BaseHudModule {
 		int color = getAnimationColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
 		String text = formatValue(currentDisplayValue, isAnimating);
 		drawText(context, text, x + ICON_SIZE + ICON_TEXT_GAP, y, color);
-		
-		updateBlinkTimer();
 		
 		// Render jump bar if applicable
 		if (vehicle instanceof AbstractHorseEntity horse) {

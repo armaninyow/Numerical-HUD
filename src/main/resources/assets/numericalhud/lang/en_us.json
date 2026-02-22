@@ -1,0 +1,7 @@
+{
+	"text.autoconfig.numericalhud.title": "Numerical HUD",
+	"text.autoconfig.numericalhud.option.animationStyle": "Animation Style",
+	"text.autoconfig.numericalhud.option.animationStyle.@Tooltip": "Controls how the HUD values animate when they change.\nDecimal: numbers count up/down with decimals.\nFade: the number snaps instantly and the text color fades back to white.\nPopup: a delta value (+2, -3) floats next to the module for 1 second.",
+	"text.autoconfig.numericalhud.option.showArmorWhenZero": "Show Armor at Zero",
+	"text.autoconfig.numericalhud.option.showArmorWhenZero.@Tooltip": "When disabled, the Armor module is hidden entirely while the player has no armor equipped."
+}

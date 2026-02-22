@@ -23,6 +23,8 @@ public class NumericalHud implements ClientModInitializer {
 
 		LOGGER.info("Hello Fabric world!");
 
+		ModConfig.register();
+
 		HudRenderCallback.EVENT.register(new HudRenderer());
 
 		System.out.println("Numerical HUD initialized!");

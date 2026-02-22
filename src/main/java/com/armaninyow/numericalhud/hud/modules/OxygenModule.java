@@ -1,5 +1,7 @@
 package com.armaninyow.numericalhud.hud.modules;
 
+import com.armaninyow.numericalhud.AnimationStyle;
+import com.armaninyow.numericalhud.ModConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,6 +15,7 @@ public class OxygenModule extends BaseHudModule {
 	private static final int MAX_AIR = 300;
 	
 	private int lastAirSeconds = 15;
+	private float lastAirSecondsFloat = Float.MAX_VALUE;
 	private int popAnimationTick = 0;
 	private int pushAnimationTick = 0;
 	private boolean isPopping = false;
@@ -22,13 +25,19 @@ public class OxygenModule extends BaseHudModule {
 	public void render(DrawContext context, PlayerEntity player, int x, int y, float tickDelta) {
 		int air = player.getAir();
 		int airSeconds = air / 20;
-		boolean hasWaterBreathing = player.hasStatusEffect(StatusEffects.WATER_BREATHING) || 
+		boolean hasWaterBreathing = player.hasStatusEffect(StatusEffects.WATER_BREATHING) ||
 								   player.hasStatusEffect(StatusEffects.CONDUIT_POWER);
 		
-		// Update animation (with decimals like other modules)
-		updateAnimation(airSeconds, 0.1f);
+		AnimationStyle style = ModConfig.get().animationStyle;
 		
-		// Determine if we should animate
+		if (style == AnimationStyle.DECIMAL) {
+			updateAnimation(airSeconds, 0.1f);
+		} else {
+			tickStyleAnimations(airSeconds, lastAirSecondsFloat);
+		}
+		lastAirSecondsFloat = airSeconds;
+		
+		// Determine if we should animate the icon
 		if (airSeconds < lastAirSeconds && !isPopping && air > 0) {
 			isPopping = true;
 			popAnimationTick = 0;
@@ -40,21 +49,17 @@ public class OxygenModule extends BaseHudModule {
 		
 		// Render icon (moved 1px up)
 		if (air <= 0) {
-			// Show empty texture when no air
 			drawIcon(context, getTexture("oxygen/air_empty.png"), x, y - 1, 1.0f);
 		} else if (isPopping) {
-			// Pop animation (20 ticks total)
 			popAnimationTick++;
 			
 			if (popAnimationTick <= 5) {
-				// Burst phase (ticks 1-5): fading burst
 				float t = popAnimationTick / 5.0f;
-				float alpha = 1.0f - (t * t); // Quadratic ease-out
+				float alpha = 1.0f - (t * t);
 				drawIcon(context, getTexture("oxygen/air_bursting.png"), x, y - 1, alpha);
 			} else {
-				// Recovery phase (ticks 6-20): fading in bubble
 				float t = (popAnimationTick - 5) / 15.0f;
-				float alpha = t * t; // Quadratic ease-out fade-in
+				float alpha = t * t;
 				drawIcon(context, getTexture("oxygen/air.png"), x, y - 1, alpha);
 			}
 			
@@ -63,18 +68,14 @@ public class OxygenModule extends BaseHudModule {
 				popAnimationTick = 0;
 			}
 		} else if (isPushing) {
-			// Push animation (10 ticks) with clipping
 			pushAnimationTick++;
 			float progress = pushAnimationTick / 10.0f;
 			
-			// Enable scissor clipping to 9x9 box
 			context.enableScissor(x, y - 1, x + ICON_SIZE, y - 1 + ICON_SIZE);
 			
-			// Outgoing bubble (moves up and out: 0 → -9)
 			int outgoingOffset = (int)(-9 * progress);
 			drawIcon(context, getTexture("oxygen/air.png"), x, y - 1 + outgoingOffset, 1.0f);
 			
-			// Incoming bubble (moves up into view: 9 → 0)
 			int incomingOffset = (int)(9 - (9 * progress));
 			drawIcon(context, getTexture("oxygen/air.png"), x, y - 1 + incomingOffset, 1.0f);
 			
@@ -85,27 +86,27 @@ public class OxygenModule extends BaseHudModule {
 				pushAnimationTick = 0;
 			}
 		} else {
-			// Normal rendering
 			drawIcon(context, getTexture("oxygen/air.png"), x, y - 1, 1.0f);
 		}
 		
 		// Render text (no offset, no "s")
-		// Determine text color
 		int textColor;
 		if (air <= 0) {
-			textColor = COLOR_RED; // Always red when drowning
+			textColor = COLOR_RED;
 		} else {
-			textColor = getAnimationColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
+			textColor = getStyledColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
 		}
 		
-		// Format text
 		String text;
 		if (hasWaterBreathing) {
 			text = "∞";
 		} else {
-			text = formatValue(currentDisplayValue, isAnimating);
+			text = getStyledText(airSeconds);
 		}
 		
 		drawText(context, text, x + ICON_SIZE + ICON_TEXT_GAP, y, textColor);
+		
+		// Render popup if applicable
+		renderPopup(context, x, y);
 	}
 }

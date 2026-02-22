@@ -1,5 +1,7 @@
 package com.armaninyow.numericalhud.hud.modules;
 
+import com.armaninyow.numericalhud.AnimationStyle;
+import com.armaninyow.numericalhud.ModConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,42 +21,46 @@ public class HungerModule extends BaseHudModule {
 		float saturation = player.getHungerManager().getSaturationLevel();
 		boolean hasHungerEffect = player.hasStatusEffect(StatusEffects.HUNGER);
 		
-		// Update animation
-		updateAnimation(hunger, 0.1f);
+		AnimationStyle style = ModConfig.get().animationStyle;
 		
-		// Trigger blink on hunger loss and start recurring blink
-		triggerDamageBlink(hunger, lastHunger);
+		if (style == AnimationStyle.DECIMAL) {
+			updateAnimation(hunger, 0.1f);
+			triggerDamageBlink(hunger, lastHunger);
+		} else {
+			tickStyleAnimations(hunger, lastHunger);
+			triggerDamageBlink(hunger, lastHunger);
+		}
 		lastHunger = hunger;
 		
-		// Update blink timer
 		updateBlinkTimer();
-		
-		// Update recurring blink timer (max hunger is 20)
 		updateRecurringBlink(hunger, 20);
 		
 		// Determine text color
 		int textColor;
 		if (hunger == 0) {
-			textColor = COLOR_RED; // Always static red when hunger = 0
+			textColor = COLOR_RED;
 		} else {
-			textColor = getAnimationColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
+			textColor = getStyledColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
 		}
 		
-		// Select textures based on blink state
+		// Select textures based on blink state and hunger effect
 		Identifier containerTexture;
+		Identifier foregroundTexture;
 		if (shouldShowBlink()) {
 			containerTexture = hasHungerEffect ?
 				getTexture("hunger/container_hunger_blinking.png") :
 				getTexture("hunger/container_blinking.png");
+			foregroundTexture = hasHungerEffect ?
+				getTexture("hunger/food_full_hunger_blinking.png") :
+				getTexture("hunger/food_full_blinking.png");
 		} else {
 			containerTexture = hasHungerEffect ?
 				getTexture("hunger/food_empty_hunger.png") :
 				getTexture("hunger/food_empty.png");
+			foregroundTexture = hasHungerEffect ?
+				getTexture("hunger/food_full_hunger.png") :
+				getTexture("hunger/food_full.png");
 		}
-		
-		Identifier foregroundTexture = hasHungerEffect ?
-			getTexture("hunger/food_full_hunger.png") :
-			getTexture("hunger/food_full.png");
 		
 		Identifier saturationTexture = getTexture("hunger/food_saturation.png");
 		
@@ -71,7 +77,10 @@ public class HungerModule extends BaseHudModule {
 		}
 		
 		// Render text (no offset)
-		String text = formatValue(currentDisplayValue, isAnimating);
+		String text = getStyledText(hunger);
 		drawText(context, text, x + ICON_SIZE + ICON_TEXT_GAP, y, textColor);
+		
+		// Render popup if applicable
+		renderPopup(context, x, y);
 	}
 }

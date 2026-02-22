@@ -1,5 +1,7 @@
 package com.armaninyow.numericalhud.hud.modules;
 
+import com.armaninyow.numericalhud.AnimationStyle;
+import com.armaninyow.numericalhud.ModConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -26,17 +28,18 @@ public class VehicleHealthModule extends BaseHudModule {
 		float health = livingVehicle.getHealth();
 		float maxHealth = livingVehicle.getMaxHealth();
 		
-		// Update animation
-		updateAnimation(health, 0.1f);
+		AnimationStyle style = ModConfig.get().animationStyle;
 		
-		// Trigger blink on damage and start recurring blink
-		triggerDamageBlink(health, lastVehicleHealth);
+		if (style == AnimationStyle.DECIMAL) {
+			updateAnimation(health, 0.1f);
+			triggerDamageBlink(health, lastVehicleHealth);
+		} else {
+			tickStyleAnimations(health, lastVehicleHealth);
+			triggerDamageBlink(health, lastVehicleHealth);
+		}
 		lastVehicleHealth = health;
 		
-		// Update blink timer
 		updateBlinkTimer();
-		
-		// Update recurring blink timer
 		updateRecurringBlink(health, maxHealth);
 		
 		// Select textures based on blink state
@@ -56,9 +59,12 @@ public class VehicleHealthModule extends BaseHudModule {
 		drawIcon(context, foregroundTexture, x, y - 1);
 		
 		// Render text
-		int color = getAnimationColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
-		String text = formatValue(currentDisplayValue, isAnimating);
+		int color = getStyledColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
+		String text = getStyledText(health);
 		drawText(context, text, x + ICON_SIZE + ICON_TEXT_GAP, y, color);
+		
+		// Render popup if applicable
+		renderPopup(context, x, y);
 		
 		// Render jump bar if applicable
 		if (vehicle instanceof AbstractHorseEntity horse) {

@@ -1,5 +1,7 @@
 package com.armaninyow.numericalhud.hud.modules;
 
+import com.armaninyow.numericalhud.AnimationStyle;
+import com.armaninyow.numericalhud.ModConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.effect.StatusEffects;
@@ -21,35 +23,36 @@ public class HealthModule extends BaseHudModule {
 		float absorption = player.getAbsorptionAmount();
 		float maxHealth = player.getMaxHealth();
 		
-		// Get hardcore status from client world
+		float totalHealth = health + absorption;
+		
 		MinecraftClient client = MinecraftClient.getInstance();
 		boolean isHardcore = client.world != null && client.world.getLevelProperties().isHardcore();
 		
-		// Determine status effect
 		boolean isPoisoned = player.hasStatusEffect(StatusEffects.POISON);
 		boolean isWithered = player.hasStatusEffect(StatusEffects.WITHER);
 		boolean isFrozen = player.isFrozen();
 		
-		// Update animation
-		float totalHealth = health + absorption;
-		updateAnimation(totalHealth, 0.1f);
 		
-		// Trigger blink on damage and start recurring blink
-		triggerDamageBlink(totalHealth, lastHealth);
+		AnimationStyle style = ModConfig.get().animationStyle;
+		
+		if (style == AnimationStyle.DECIMAL) {
+			updateAnimation(totalHealth, 0.1f);
+			triggerDamageBlink(totalHealth, lastHealth);
+		} else {
+			tickStyleAnimations(totalHealth, lastHealth);
+			triggerDamageBlink(totalHealth, lastHealth);
+		}
 		lastHealth = totalHealth;
 		
-		// Update blink timer
 		updateBlinkTimer();
-		
-		// Update recurring blink timer
 		updateRecurringBlink(totalHealth, maxHealth);
 		
 		// Determine text color
 		int textColor;
 		if (health <= PANIC_THRESHOLD) {
-			textColor = COLOR_RED; // Always static red when health <= 4
+			textColor = COLOR_RED;
 		} else {
-			textColor = getAnimationColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
+			textColor = getStyledColor(COLOR_WHITE, COLOR_RED, COLOR_GREEN);
 		}
 		
 		// Select textures
@@ -62,9 +65,12 @@ public class HealthModule extends BaseHudModule {
 		drawIcon(context, containerTexture, x, y - 1);
 		drawIcon(context, foregroundTexture, x, y - 1);
 		
-		// Render text (no offset)
-		String text = formatValue(currentDisplayValue, isAnimating);
+		// Render text
+		String text = getStyledText(totalHealth);
 		drawText(context, text, x + ICON_SIZE + ICON_TEXT_GAP, y, textColor);
+		
+		// Render popup if applicable
+		renderPopup(context, x, y);
 	}
 	
 	private Identifier getContainerTexture(boolean hardcore, boolean blink) {
@@ -77,8 +83,8 @@ public class HealthModule extends BaseHudModule {
 		return getTexture(prefix + "container" + suffix);
 	}
 	
-	private Identifier getForegroundTexture(boolean absorption, boolean poisoned, 
-										   boolean withered, boolean frozen, 
+	private Identifier getForegroundTexture(boolean absorption, boolean poisoned,
+										   boolean withered, boolean frozen,
 										   boolean hardcore, boolean blink) {
 		String prefix = "health/";
 		String suffix = blink ? "_blinking.png" : ".png";

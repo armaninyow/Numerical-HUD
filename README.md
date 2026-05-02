@@ -19,6 +19,15 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 3.1.0—1.21.x
+* Added a Jump module that displays above the hunger slot while riding a mob, showing charge percentage with color-coded text (white at 0% at rest, blue while charging, orange at 100% when fully charged)
+* Added a setting to shift all HUD modules 7 pixels down, useful when the vanilla XP bar is hidden
+* Added a setting to switch between shadow and outline text rendering styles for all module numbers
+* Replaced copied vanilla textures with direct references to Minecraft's built-in assets, improving compatibility with resource packs
+* Replaced the saturation overlay texture with a color change on the hunger number, turning it brown when the player is saturated
+* Split 1.21.5–1.21.11 into two separate version ranges to account for API differences across minor versions
+* Merged 1.21.2–1.21.5 into a single version range due to shared rendering API compatibility
+* Fixed a crash on 1.21.5 caused by an incorrect rendering API that was not available until 1.21.6
 ### 3.0.0—1.21.x
 * Added multi-version support covering Minecraft 1.21 through 1.21.11
 * Replaced the Animation Style config option with a proper enum selector dropdown

@@ -1,0 +1,11 @@
+{
+	"text.autoconfig.numericalhud.title": "Numerical HUD",
+	"text.autoconfig.numericalhud.option.animationStyle": "Animation Style",
+	"text.autoconfig.numericalhud.option.animationStyle.@Tooltip": "Controls how the HUD values animate when they change.\nDecimal: numbers count up/down with decimals.\nFade: the number snaps instantly and the text color fades back to white.\nPopup: a delta value (+2, -3) floats next to the module for 1 second.",
+	"text.autoconfig.numericalhud.option.textStyle": "Text Style",
+	"text.autoconfig.numericalhud.option.textStyle.@Tooltip": "Controls how the module numbers are rendered.\nShadow: standard text with a drop shadow and full color.\nOutline: white text with a black outline, ignoring module colors.",
+	"text.autoconfig.numericalhud.option.showArmorWhenZero": "Show Armor at Zero",
+	"text.autoconfig.numericalhud.option.showArmorWhenZero.@Tooltip": "When disabled, the Armor module is hidden entirely while the player has no armor equipped.",
+	"text.autoconfig.numericalhud.option.shiftModulesDown": "Shift Modules Down",
+	"text.autoconfig.numericalhud.option.shiftModulesDown.@Tooltip": "Shifts all modules 7 pixels down. Enable this if you want the modules to sit lower on screen."
+}

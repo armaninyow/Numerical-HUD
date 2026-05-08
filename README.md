@@ -19,6 +19,8 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 3.1.1—1.21.x
+* Fixed a crash that occurred when loading the mod in 1.21.10
 ### 3.1.0—1.21.x
 * Added a Jump module that displays above the hunger slot while riding a mob, showing charge percentage with color-coded text (white at 0% at rest, blue while charging, orange at 100% when fully charged)
 * Added a setting to shift all HUD modules 7 pixels down, useful when the vanilla XP bar is hidden

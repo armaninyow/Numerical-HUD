@@ -248,7 +248,7 @@ public abstract class BaseHudModule {
 		
 		MinecraftClient client = MinecraftClient.getInstance();
 		int currentGameTick = (client.player != null && client.world != null)
-			? (int)client.world.getTime()
+			? (int)client.world.getLevelProperties().getTime()
 			: -1;
 		
 		// Both Fade and Popup compare integer values only, so sub-integer
@@ -411,7 +411,7 @@ public abstract class BaseHudModule {
 		
 		MinecraftClient client = MinecraftClient.getInstance();
 		int currentTick = client.player != null && client.world != null ?
-			(int)client.world.getTime() : 0;
+			(int)client.world.getLevelProperties().getTime() : 0;
 		
 		int interval = Math.max(currentIntValue, 1) * 20;
 		

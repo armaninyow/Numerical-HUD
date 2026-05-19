@@ -19,6 +19,12 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 3.1.2—1.21.x
+* Fixed oxygen module to use vanilla GUI atlas sprites
+* Replaced missing air_empty sprite in 1.21-1.21.1 with air_bursting, as the empty state was not added until 1.21.2
+* Moved all first row modules 1px down
+* Moved all second row modules 3px down
+* Reduced the "Shift Modules Down" setting offset from 7px to 6px
 ### 3.1.1—1.21.x
 * Fixed a crash that occurred when loading the mod in 1.21.10
 ### 3.1.0—1.21.x

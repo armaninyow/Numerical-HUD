@@ -7,5 +7,5 @@
 	"text.autoconfig.numericalhud.option.showArmorWhenZero": "Show Armor at Zero",
 	"text.autoconfig.numericalhud.option.showArmorWhenZero.@Tooltip": "When disabled, the Armor module is hidden entirely while the player has no armor equipped.",
 	"text.autoconfig.numericalhud.option.shiftModulesDown": "Shift Modules Down",
-	"text.autoconfig.numericalhud.option.shiftModulesDown.@Tooltip": "Shifts all modules 7 pixels down. Enable this if you want the modules to sit lower on screen."
+	"text.autoconfig.numericalhud.option.shiftModulesDown.@Tooltip": "Shifts all modules 6 pixels down. Enable this if you want the modules to sit lower on screen."
 }

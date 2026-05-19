@@ -27,5 +27,14 @@ public interface IconRenderer {
 	 */
 	void drawVanillaJumpBar(DrawContext context, Identifier sprite, int x, int y, boolean rightEnd);
 
+	/**
+	 * Returns the sprite to use when the player has no air remaining.
+	 * Defaults to hud/air_empty (added in 1.21.2).
+	 * Override in 1.21/1.21.1 to return hud/air_bursting instead.
+	 */
+	default Identifier getAirEmptySprite() {
+		return Identifier.of("minecraft", "hud/air_empty");
+	}
+
 	void flush(DrawContext context);
 }

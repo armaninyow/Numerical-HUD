@@ -37,8 +37,8 @@ public class HudRenderer implements HudRenderCallback {
 		int xpBarRight = xpBarLeft + xpBarWidth;
 
 		// Position modules above the XP bar area.
-		// If shiftModulesDown is enabled, shift 7px down since the vanilla XP bar is hidden.
-		int baseY = com.armaninyow.numericalhud.ModConfig.get().shiftModulesDown ? 32 : 39;
+		// If shiftModulesDown is enabled, shift 6px down since the vanilla XP bar is hidden.
+		int baseY = com.armaninyow.numericalhud.ModConfig.get().shiftModulesDown ? 32 : 38;
 		int moduleY = screenHeight - baseY;
 
 		int healthX = xpBarLeft;
@@ -54,14 +54,14 @@ public class HudRenderer implements HudRenderCallback {
 
 		// Oxygen module (12 pixels above health module) - show when underwater OR when air < max
 		if (player.isSubmergedInWater() || player.getAir() < 300) {
-			oxygenModule.render(context, player, healthX, moduleY - 12, 0);
+			oxygenModule.render(context, player, healthX, moduleY - 10, 0);
 		}
 
 		// Second row: vehicle health (above XP slot) and jump bar (above hunger slot).
 		// Both are only relevant when riding a vehicle.
 		if (player.hasVehicle() && player.getVehicle() != null) {
-			vehicleHealthModule.render(context, player, xpX, moduleY - 12, 0);
-			jumpModule.render(context, player, hungerX, moduleY - 12, 0);
+			vehicleHealthModule.render(context, player, xpX, moduleY - 10, 0);
+			jumpModule.render(context, player, hungerX, moduleY - 10, 0);
 		}
 
 		// Flush buffered GUI atlas sprite draws

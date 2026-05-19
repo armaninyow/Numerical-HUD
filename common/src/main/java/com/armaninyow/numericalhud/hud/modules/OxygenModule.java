@@ -13,6 +13,9 @@ public class OxygenModule extends BaseHudModule {
 	private static final int COLOR_RED = 0xFFFF0000;
 	private static final int COLOR_GREEN = 0xFF00FF00;
 	private static final int MAX_AIR = 300;
+
+	private static final Identifier AIR_BURSTING = Identifier.of("minecraft", "hud/air_bursting");
+	private static final Identifier AIR_FULL     = Identifier.of("minecraft", "hud/air");
 	
 	private int lastAirSeconds = 15;
 	private float lastAirSecondsFloat = Float.MAX_VALUE;
@@ -24,6 +27,12 @@ public class OxygenModule extends BaseHudModule {
 	@Override
 	protected IconRenderer getIconRenderer() {
 		return VersionIconRenderer.INSTANCE;
+	}
+
+	/** Encodes an alpha float (0.0–1.0) into the alpha channel of a white ARGB color. */
+	private static int alphaColor(float alpha) {
+		int a = Math.max(0, Math.min(255, (int)(alpha * 255)));
+		return (a << 24) | 0x00FFFFFF;
 	}
 
 	@Override
@@ -54,18 +63,18 @@ public class OxygenModule extends BaseHudModule {
 		
 		// Render icon (moved 1px up)
 		if (air <= 0) {
-			drawIcon(context, getTexture("oxygen/air_empty.png"), x, y - 1, 1.0f);
+			drawVanillaSprite(context, getIconRenderer().getAirEmptySprite(), x, y - 1);
 		} else if (isPopping) {
 			popAnimationTick++;
 			
 			if (popAnimationTick <= 5) {
 				float t = popAnimationTick / 5.0f;
 				float alpha = 1.0f - (t * t);
-				drawIcon(context, getTexture("oxygen/air_bursting.png"), x, y - 1, alpha);
+				getIconRenderer().drawVanillaSprite(context, AIR_BURSTING, x, y - 1, ICON_SIZE, alphaColor(alpha));
 			} else {
 				float t = (popAnimationTick - 5) / 15.0f;
 				float alpha = t * t;
-				drawIcon(context, getTexture("oxygen/air.png"), x, y - 1, alpha);
+				getIconRenderer().drawVanillaSprite(context, AIR_FULL, x, y - 1, ICON_SIZE, alphaColor(alpha));
 			}
 			
 			if (popAnimationTick >= 20) {
@@ -79,10 +88,10 @@ public class OxygenModule extends BaseHudModule {
 			context.enableScissor(x, y - 1, x + ICON_SIZE, y - 1 + ICON_SIZE);
 			
 			int outgoingOffset = (int)(-9 * progress);
-			drawIcon(context, getTexture("oxygen/air.png"), x, y - 1 + outgoingOffset, 1.0f);
+			getIconRenderer().drawVanillaSprite(context, AIR_FULL, x, y - 1 + outgoingOffset, ICON_SIZE, 0xFFFFFFFF);
 			
 			int incomingOffset = (int)(9 - (9 * progress));
-			drawIcon(context, getTexture("oxygen/air.png"), x, y - 1 + incomingOffset, 1.0f);
+			getIconRenderer().drawVanillaSprite(context, AIR_FULL, x, y - 1 + incomingOffset, ICON_SIZE, 0xFFFFFFFF);
 			
 			context.disableScissor();
 			
@@ -91,7 +100,7 @@ public class OxygenModule extends BaseHudModule {
 				pushAnimationTick = 0;
 			}
 		} else {
-			drawIcon(context, getTexture("oxygen/air.png"), x, y - 1, 1.0f);
+			drawVanillaSprite(context, AIR_FULL, x, y - 1);
 		}
 		
 		// Render text (no offset, no "s")

@@ -19,6 +19,15 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 4.0.0—26.x
+* Added support for Minecraft 26.1, 26.1.1, and 26.1.2
+* Replaced Cloth Config with YetAnotherConfigLib (YACL) 3.9.3 for the in-game config screen
+* Added a Boss Bar module that replaces vanilla boss bar textures with a compact icon. Supports bosses and raids
+* Added a Potion Effects module that replaces the vanilla effect icons row with a right-aligned vertical column, showing each effect's icon, name, and timer
+* Added a setting that hides the effect name and shows only the timer
+* Changed the Popup animation so damage text now floats upward instead of downward
+* Replaced the custom damage/heal blink animation across all modules with vanilla's heart blink formula
+* Replaced the custom recurring blink in the Health and Hunger modules with the same vanilla formula
 ### 3.1.2—1.21.x
 * Fixed oxygen module to use vanilla GUI atlas sprites
 * Replaced missing air_empty sprite in 1.21-1.21.1 with air_bursting, as the empty state was not added until 1.21.2

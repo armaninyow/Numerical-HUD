@@ -1,13 +1,13 @@
 package com.armaninyow.numericalhud.hud;
 
 import com.armaninyow.numericalhud.hud.modules.*;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.entity.player.PlayerEntity;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.world.entity.player.Player;
 
-public class HudRenderer implements HudRenderCallback {
+public class HudRenderer implements HudElement {
 
 	private final HealthModule healthModule = new HealthModule();
 	private final ArmorModule armorModule = new ArmorModule();
@@ -16,19 +16,21 @@ public class HudRenderer implements HudRenderCallback {
 	private final OxygenModule oxygenModule = new OxygenModule();
 	private final VehicleHealthModule vehicleHealthModule = new VehicleHealthModule();
 	private final JumpModule jumpModule = new JumpModule();
+	private final BossBarModule bossBarModule = new BossBarModule();
+	private final EffectsModule effectsModule = new EffectsModule();
 
 	@Override
-	public void onHudRender(DrawContext context, RenderTickCounter renderTickCounter) {
-		MinecraftClient client = MinecraftClient.getInstance();
+	public void extractRenderState(GuiGraphicsExtractor context, DeltaTracker deltaTracker) {
+		Minecraft client = Minecraft.getInstance();
 
-		if (client.player == null || client.options.hudHidden) {
+		if (client.player == null || client.options.hideGui) {
 			return;
 		}
 
-		PlayerEntity player = client.player;
+		Player player = client.player;
 
-		int screenWidth = context.getScaledWindowWidth();
-		int screenHeight = context.getScaledWindowHeight();
+		int screenWidth = context.guiWidth();
+		int screenHeight = context.guiHeight();
 
 		// XP bar dimensions (same as vanilla)
 		int xpBarWidth = 182;
@@ -46,20 +48,26 @@ public class HudRenderer implements HudRenderCallback {
 		int hungerX = xpBarLeft + (xpBarWidth / 2);
 		int xpX = xpBarLeft + (3 * xpBarWidth / 4);
 
+		// Boss bar module — rendered at top of screen
+		bossBarModule.render(context, player, 0, 0, 0);
+
+		// Effects module — rendered at right edge of screen
+		effectsModule.render(context, player, 0, 0, 0);
+
 		// Render main row
 		healthModule.render(context, player, healthX, moduleY, 0);
 		armorModule.render(context, player, armorX, moduleY, 0);
 		hungerModule.render(context, player, hungerX, moduleY, 0);
 		xpModule.render(context, player, xpX, moduleY, 0);
 
-		// Oxygen module (12 pixels above health module) - show when underwater OR when air < max
-		if (player.isSubmergedInWater() || player.getAir() < 300) {
+		// Oxygen module (10 pixels above health module) - show when underwater OR when air < max
+		if (player.isUnderWater() || player.getAirSupply() < 300) {
 			oxygenModule.render(context, player, healthX, moduleY - 10, 0);
 		}
 
-		// Second row: vehicle health (above XP slot) and jump bar (above hunger slot).
+		// Vehicle health (above XP slot) and jump bar (above hunger slot)
 		// Both are only relevant when riding a vehicle.
-		if (player.hasVehicle() && player.getVehicle() != null) {
+		if (player.isPassenger() && player.getVehicle() != null) {
 			vehicleHealthModule.render(context, player, xpX, moduleY - 10, 0);
 			jumpModule.render(context, player, hungerX, moduleY - 10, 0);
 		}

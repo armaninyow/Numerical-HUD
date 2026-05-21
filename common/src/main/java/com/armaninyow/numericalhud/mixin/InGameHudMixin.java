@@ -1,37 +1,34 @@
 package com.armaninyow.numericalhud.mixin;
 
 import com.armaninyow.numericalhud.XpDataHolder;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.DeltaTracker;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(InGameHud.class)
+@Mixin(Gui.class)
 public class InGameHudMixin {
 
-	@Inject(method = "renderHealthBar", at = @At("HEAD"), cancellable = true)
-	private void cancelHealthBar(DrawContext context, PlayerEntity player, int x, int y, int lines, int regeneratingHeartIndex, float maxHealth, int lastHealth, int health, int absorption, boolean blinking, CallbackInfo ci) {
+	// Cancel vanilla health, armor, food, air bars
+	@Inject(method = "extractPlayerHealth", at = @At("HEAD"), cancellable = true)
+	private void cancelPlayerHealth(GuiGraphicsExtractor context, CallbackInfo ci) {
 		ci.cancel();
 	}
 
-	@Inject(method = "renderStatusBars", at = @At("HEAD"), cancellable = true)
-	private void cancelStatusBars(DrawContext context, CallbackInfo ci) {
+	// Cancel vanilla vehicle health bar
+	@Inject(method = "extractVehicleHealth", at = @At("HEAD"), cancellable = true)
+	private void cancelVehicleHealth(GuiGraphicsExtractor context, CallbackInfo ci) {
 		ci.cancel();
 	}
 
-	@Inject(method = "renderMountHealth", at = @At("HEAD"), cancellable = true)
-	private void cancelMountHealth(DrawContext context, CallbackInfo ci) {
-		ci.cancel();
-	}
-
-	// Hide XP level only during vanilla InGameHud rendering
-	@Inject(method = "render", at = @At("HEAD"))
-	private void beforeVanillaRender(DrawContext context, net.minecraft.client.render.RenderTickCounter tickCounter, CallbackInfo ci) {
-		MinecraftClient client = MinecraftClient.getInstance();
+	// Capture real XP data before vanilla hides it, then restore after
+	@Inject(method = "extractRenderState", at = @At("HEAD"))
+	private void beforeExtractRenderState(GuiGraphicsExtractor context, DeltaTracker deltaTracker, CallbackInfo ci) {
+		Minecraft client = Minecraft.getInstance();
 		if (client.player != null) {
 			if (client.player.experienceLevel >= 0) {
 				XpDataHolder.setRealXpData(client.player.experienceLevel, client.player.experienceProgress);
@@ -40,10 +37,9 @@ public class InGameHudMixin {
 		}
 	}
 
-	// Restore XP level immediately after vanilla rendering
-	@Inject(method = "render", at = @At("TAIL"))
-	private void afterVanillaRender(DrawContext context, net.minecraft.client.render.RenderTickCounter tickCounter, CallbackInfo ci) {
-		MinecraftClient client = MinecraftClient.getInstance();
+	@Inject(method = "extractRenderState", at = @At("TAIL"))
+	private void afterExtractRenderState(GuiGraphicsExtractor context, DeltaTracker deltaTracker, CallbackInfo ci) {
+		Minecraft client = Minecraft.getInstance();
 		if (client.player != null) {
 			client.player.experienceLevel = XpDataHolder.getRealXpLevel();
 		}

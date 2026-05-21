@@ -1,17 +1,21 @@
 package com.armaninyow.numericalhud.hud.modules;
 
 import com.armaninyow.numericalhud.XpDataHolder;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.Identifier;
 
 public class XpModule extends BaseHudModule {
 	
-	private static final int COLOR_GREEN = 0xFF80C71F;
+	private static final int COLOR_GREEN  = 0xFF80C71F;
 	private static final int COLOR_YELLOW = 0xFFFED83D;
 	
 	private boolean firstRender = true;
 	private float lastLevelPercent = Float.MAX_VALUE;
+
+	// Vanilla-style blink state
+	private long xpBlinkTime = 0;
 	
 	@Override
 	protected IconRenderer getIconRenderer() {
@@ -19,53 +23,48 @@ public class XpModule extends BaseHudModule {
 	}
 
 	@Override
-	public void render(DrawContext context, PlayerEntity player, int x, int y, float tickDelta) {
-		// Always use the holder data (it's set before player level is hidden)
+	public void render(GuiGraphicsExtractor context, Player player, int x, int y, float tickDelta) {
 		int level = XpDataHolder.getRealXpLevel();
 		float progress = XpDataHolder.getRealXpProgress();
 		
-		// Skip rendering if we don't have valid data yet (still at initialization values)
 		if (!XpDataHolder.isInitialized()) {
 			return;
 		}
 		
 		int currentXp = (int)(progress * getXpForLevel(level));
 		int totalXpForLevel = getXpForLevel(level);
-		
-		// Calculate level.percent
 		float levelPercent = level + (currentXp / (float)totalXpForLevel);
 		
-		// On first render, initialize the animation value to current value (no animation)
 		if (firstRender) {
 			currentDisplayValue = levelPercent;
 			firstRender = false;
 		}
 		
-		// Update animation with faster increment (0.01 steps)
 		updateAnimation(levelPercent, 0.01f);
-		
-		// Vanilla XP bar sprites (182x5) — we slice column 0 + columns 174-181 to get 9x5
-		Identifier xpBarBg = Identifier.of("minecraft", "hud/experience_bar_background");
-		Identifier xpBarFg = Identifier.of("minecraft", "hud/experience_bar_progress");
 
-		// Trigger blink on XP change
-		if (lastLevelPercent != Float.MAX_VALUE && (int)(levelPercent * 100) != (int)(lastLevelPercent * 100)) {
-			shouldBlink = true;
-			blinkTimer = 0;
-			isIncreasing = levelPercent > lastLevelPercent;
+		int tickCount = Minecraft.getInstance().gui.getGuiTicks();
+
+		if (lastLevelPercent != Float.MAX_VALUE) {
+			int prev = (int)(lastLevelPercent * 100);
+			int curr = (int)(levelPercent * 100);
+			if (curr != prev) {
+				isIncreasing = levelPercent > lastLevelPercent;
+				xpBlinkTime = tickCount + (isIncreasing ? 10 : 20);
+			}
 		}
 		lastLevelPercent = levelPercent;
-		updateBlinkTimer();
 
-		// Render icon — background always, foreground only if XP > 0
-		// Blink: show only background during blink frames
-		// Centered vertically in the 9x9 icon area (offset 2px down to center 5px bar)
+		boolean blink = xpBlinkTime > tickCount
+			&& ((xpBlinkTime - tickCount) / 3) % 2 == 1;
+
+		Identifier xpBarBg = Identifier.fromNamespaceAndPath("minecraft", "hud/experience_bar_background");
+		Identifier xpBarFg = Identifier.fromNamespaceAndPath("minecraft", "hud/experience_bar_progress");
+
 		drawVanillaXpBar(context, xpBarBg, x, y + 1);
-		if (levelPercent > 0.01f && !shouldShowBlink()) {
+		if (levelPercent > 0.01f && !blink) {
 			drawVanillaXpBar(context, xpBarFg, x, y + 1);
 		}
 
-		// Render text (no offset)
 		int color = isAnimating ? COLOR_YELLOW : COLOR_GREEN;
 		String text = String.format("%.2f", currentDisplayValue);
 		drawText(context, text, x + ICON_SIZE + ICON_TEXT_GAP, y, color);

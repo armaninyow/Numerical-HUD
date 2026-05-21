@@ -2,66 +2,58 @@ package com.armaninyow.numericalhud;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.clothconfig2.api.ConfigBuilder;
-import me.shedaniel.clothconfig2.api.ConfigCategory;
-import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import net.minecraft.text.Text;
+import dev.isxander.yacl3.api.*;
+import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
+import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import net.minecraft.network.chat.Component;
 
 public class ModMenuIntegration implements ModMenuApi {
 
 	@Override
 	public ConfigScreenFactory<?> getModConfigScreenFactory() {
-		return parent -> {
-			ConfigBuilder builder = ConfigBuilder.create()
-					.setParentScreen(parent)
-					.setTitle(Text.translatable("text.autoconfig.numericalhud.title"));
+		return parent -> YetAnotherConfigLib.createBuilder()
+				.title(Component.translatable("text.autoconfig.numericalhud.title"))
+				.category(ConfigCategory.createBuilder()
+						.name(Component.literal("General"))
 
-			ModConfig config = ModConfig.get();
-			ConfigEntryBuilder entryBuilder = builder.entryBuilder();
-			ConfigCategory general = builder.getOrCreateCategory(Text.literal("General"));
+						.option(Option.<AnimationStyle>createBuilder()
+								.name(Component.translatable("text.autoconfig.numericalhud.option.animationStyle"))
+								.description(OptionDescription.of(Component.translatable("text.autoconfig.numericalhud.option.animationStyle.@Tooltip")))
+								.binding(AnimationStyle.DECIMAL, () -> ModConfig.get().animationStyle, val -> ModConfig.get().animationStyle = val)
+								.controller(opt -> EnumControllerBuilder.create(opt).enumClass(AnimationStyle.class))
+								.build())
 
-			// Animation Style — enum selector
-			general.addEntry(entryBuilder.startEnumSelector(
-					Text.translatable("text.autoconfig.numericalhud.option.animationStyle"),
-					AnimationStyle.class,
-					config.animationStyle)
-					.setDefaultValue(AnimationStyle.DECIMAL)
-					.setTooltip(Text.translatable("text.autoconfig.numericalhud.option.animationStyle.@Tooltip"))
-					.setSaveConsumer(newValue -> config.animationStyle = newValue)
-					.build());
+						.option(Option.<TextStyle>createBuilder()
+								.name(Component.translatable("text.autoconfig.numericalhud.option.textStyle"))
+								.description(OptionDescription.of(Component.translatable("text.autoconfig.numericalhud.option.textStyle.@Tooltip")))
+								.binding(TextStyle.SHADOW, () -> ModConfig.get().textStyle, val -> ModConfig.get().textStyle = val)
+								.controller(opt -> EnumControllerBuilder.create(opt).enumClass(TextStyle.class))
+								.build())
 
-			// Text Style — enum selector
-			general.addEntry(entryBuilder.startEnumSelector(
-					Text.translatable("text.autoconfig.numericalhud.option.textStyle"),
-					TextStyle.class,
-					config.textStyle)
-					.setDefaultValue(TextStyle.SHADOW)
-					.setTooltip(Text.translatable("text.autoconfig.numericalhud.option.textStyle.@Tooltip"))
-					.setSaveConsumer(newValue -> config.textStyle = newValue)
-					.build());
+						.option(Option.<Boolean>createBuilder()
+								.name(Component.translatable("text.autoconfig.numericalhud.option.showEffectNames"))
+								.description(OptionDescription.of(Component.translatable("text.autoconfig.numericalhud.option.showEffectNames.@Tooltip")))
+								.binding(true, () -> ModConfig.get().showEffectNames, val -> ModConfig.get().showEffectNames = val)
+								.controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
+								.build())
 
-			// Show Armor When Zero — boolean toggle
-			general.addEntry(entryBuilder.startBooleanToggle(
-					Text.translatable("text.autoconfig.numericalhud.option.showArmorWhenZero"),
-					config.showArmorWhenZero)
-					.setDefaultValue(true)
-					.setTooltip(Text.translatable("text.autoconfig.numericalhud.option.showArmorWhenZero.@Tooltip"))
-					.setSaveConsumer(newValue -> config.showArmorWhenZero = newValue)
-					.build());
+						.option(Option.<Boolean>createBuilder()
+								.name(Component.translatable("text.autoconfig.numericalhud.option.showArmorWhenZero"))
+								.description(OptionDescription.of(Component.translatable("text.autoconfig.numericalhud.option.showArmorWhenZero.@Tooltip")))
+								.binding(true, () -> ModConfig.get().showArmorWhenZero, val -> ModConfig.get().showArmorWhenZero = val)
+								.controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
+								.build())
 
-			// Shift Modules Down — boolean toggle
-			general.addEntry(entryBuilder.startBooleanToggle(
-					Text.translatable("text.autoconfig.numericalhud.option.shiftModulesDown"),
-					config.shiftModulesDown)
-					.setDefaultValue(false)
-					.setTooltip(Text.translatable("text.autoconfig.numericalhud.option.shiftModulesDown.@Tooltip"))
-					.setSaveConsumer(newValue -> config.shiftModulesDown = newValue)
-					.build());
+						.option(Option.<Boolean>createBuilder()
+								.name(Component.translatable("text.autoconfig.numericalhud.option.shiftModulesDown"))
+								.description(OptionDescription.of(Component.translatable("text.autoconfig.numericalhud.option.shiftModulesDown.@Tooltip")))
+								.binding(false, () -> ModConfig.get().shiftModulesDown, val -> ModConfig.get().shiftModulesDown = val)
+								.controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
+								.build())
 
-			builder.setSavingRunnable(() -> AutoConfig.getConfigHolder(ModConfig.class).save());
-
-			return builder.build();
-		};
+						.build())
+				.save(ModConfig::save)
+				.build()
+				.generateScreen(parent);
 	}
 }

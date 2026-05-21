@@ -2,10 +2,10 @@ package com.armaninyow.numericalhud.hud.modules;
 
 import com.armaninyow.numericalhud.AnimationStyle;
 import com.armaninyow.numericalhud.ModConfig;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.Identifier;
 
 public class OxygenModule extends BaseHudModule {
 	
@@ -13,9 +13,6 @@ public class OxygenModule extends BaseHudModule {
 	private static final int COLOR_RED = 0xFFFF0000;
 	private static final int COLOR_GREEN = 0xFF00FF00;
 	private static final int MAX_AIR = 300;
-
-	private static final Identifier AIR_BURSTING = Identifier.of("minecraft", "hud/air_bursting");
-	private static final Identifier AIR_FULL     = Identifier.of("minecraft", "hud/air");
 	
 	private int lastAirSeconds = 15;
 	private float lastAirSecondsFloat = Float.MAX_VALUE;
@@ -24,23 +21,21 @@ public class OxygenModule extends BaseHudModule {
 	private boolean isPopping = false;
 	private boolean isPushing = false;
 	
+	private static final Identifier AIR_SPRITE         = Identifier.fromNamespaceAndPath("minecraft", "hud/air");
+	private static final Identifier AIR_BURSTING_SPRITE = Identifier.fromNamespaceAndPath("minecraft", "hud/air_bursting");
+	private static final Identifier AIR_EMPTY_SPRITE   = Identifier.fromNamespaceAndPath("minecraft", "hud/air_empty");
+
 	@Override
 	protected IconRenderer getIconRenderer() {
 		return VersionIconRenderer.INSTANCE;
 	}
 
-	/** Encodes an alpha float (0.0–1.0) into the alpha channel of a white ARGB color. */
-	private static int alphaColor(float alpha) {
-		int a = Math.max(0, Math.min(255, (int)(alpha * 255)));
-		return (a << 24) | 0x00FFFFFF;
-	}
-
 	@Override
-	public void render(DrawContext context, PlayerEntity player, int x, int y, float tickDelta) {
-		int air = player.getAir();
+	public void render(GuiGraphicsExtractor context, Player player, int x, int y, float tickDelta) {
+		int air = player.getAirSupply();
 		int airSeconds = air / 20;
-		boolean hasWaterBreathing = player.hasStatusEffect(StatusEffects.WATER_BREATHING) ||
-								   player.hasStatusEffect(StatusEffects.CONDUIT_POWER);
+		boolean hasWaterBreathing = player.hasEffect(MobEffects.WATER_BREATHING) ||
+								   player.hasEffect(MobEffects.CONDUIT_POWER);
 		
 		AnimationStyle style = ModConfig.get().animationStyle;
 		
@@ -51,7 +46,6 @@ public class OxygenModule extends BaseHudModule {
 		}
 		lastAirSecondsFloat = airSeconds;
 		
-		// Determine if we should animate the icon
 		if (airSeconds < lastAirSeconds && !isPopping && air > 0) {
 			isPopping = true;
 			popAnimationTick = 0;
@@ -61,49 +55,42 @@ public class OxygenModule extends BaseHudModule {
 		}
 		lastAirSeconds = airSeconds;
 		
-		// Render icon (moved 1px up)
 		if (air <= 0) {
-			drawVanillaSprite(context, getIconRenderer().getAirEmptySprite(), x, y - 1);
+			drawVanillaSprite(context, AIR_EMPTY_SPRITE, x, y - 1);
 		} else if (isPopping) {
 			popAnimationTick++;
-			
 			if (popAnimationTick <= 5) {
 				float t = popAnimationTick / 5.0f;
 				float alpha = 1.0f - (t * t);
-				getIconRenderer().drawVanillaSprite(context, AIR_BURSTING, x, y - 1, ICON_SIZE, alphaColor(alpha));
+				int color = ((int)(alpha * 255) << 24) | 0xFFFFFF;
+				getIconRenderer().drawVanillaSprite(context, AIR_BURSTING_SPRITE, x, y - 1, ICON_SIZE, color);
 			} else {
 				float t = (popAnimationTick - 5) / 15.0f;
 				float alpha = t * t;
-				getIconRenderer().drawVanillaSprite(context, AIR_FULL, x, y - 1, ICON_SIZE, alphaColor(alpha));
+				int color = ((int)(alpha * 255) << 24) | 0xFFFFFF;
+				getIconRenderer().drawVanillaSprite(context, AIR_SPRITE, x, y - 1, ICON_SIZE, color);
 			}
-			
 			if (popAnimationTick >= 20) {
 				isPopping = false;
 				popAnimationTick = 0;
 			}
 		} else if (isPushing) {
 			pushAnimationTick++;
-			float progress = pushAnimationTick / 10.0f;
-			
 			context.enableScissor(x, y - 1, x + ICON_SIZE, y - 1 + ICON_SIZE);
-			
+			float progress = pushAnimationTick / 10.0f;
 			int outgoingOffset = (int)(-9 * progress);
-			getIconRenderer().drawVanillaSprite(context, AIR_FULL, x, y - 1 + outgoingOffset, ICON_SIZE, 0xFFFFFFFF);
-			
 			int incomingOffset = (int)(9 - (9 * progress));
-			getIconRenderer().drawVanillaSprite(context, AIR_FULL, x, y - 1 + incomingOffset, ICON_SIZE, 0xFFFFFFFF);
-			
+			drawVanillaSprite(context, AIR_SPRITE, x, y - 1 + outgoingOffset);
+			drawVanillaSprite(context, AIR_SPRITE, x, y - 1 + incomingOffset);
 			context.disableScissor();
-			
 			if (pushAnimationTick >= 10) {
 				isPushing = false;
 				pushAnimationTick = 0;
 			}
 		} else {
-			drawVanillaSprite(context, AIR_FULL, x, y - 1);
+			drawVanillaSprite(context, AIR_SPRITE, x, y - 1);
 		}
 		
-		// Render text (no offset, no "s")
 		int textColor;
 		if (air <= 0) {
 			textColor = COLOR_RED;
@@ -120,7 +107,6 @@ public class OxygenModule extends BaseHudModule {
 		
 		drawText(context, text, x + ICON_SIZE + ICON_TEXT_GAP, y, textColor);
 		
-		// Render popup if applicable
 		renderPopup(context, x, y);
 	}
 }

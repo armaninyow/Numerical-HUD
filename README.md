@@ -19,6 +19,15 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 4.1.0—26.x
+* Added support for Minecraft 26.2
+* Added toggles to enable or disable the boss bar and status effects HUD replacements
+* Added Camel and Camel Husk support to the Jump module
+* Fixed the Jump module's charging colors
+* Fixed the Boss bar number staying stuck at 0 instead of updating
+* Fixed the HUD showing up in creative mode, matching vanilla behavior
+* Updated the text outline, dropping the corners
+* Updated all HUD colors to match Minecraft's standard color palette
 ### 4.0.0—26.x
 * Added support for Minecraft 26.1, 26.1.1, and 26.1.2
 * Replaced Cloth Config with YetAnotherConfigLib (YACL) 3.9.3 for the in-game config screen
